@@ -40,14 +40,13 @@ public class ShaderHelper {
             }
             return 0;
         }
-
+        Log.v(TAG, "ShaderObject ID: "+shaderObjectId);
         glShaderSource(shaderObjectId, shaderCode);
         glCompileShader(shaderObjectId);
         final int[] compileStatus = new int[1];
         glGetShaderiv(shaderObjectId, GL_COMPILE_STATUS, compileStatus, 0);
-
         if(LoggerConfig.ON){
-            Log.v(TAG, "Results of compiling source:"+"\n"+shaderCode+"\n"
+            Log.v(TAG, "Results of compiling source:"+"\n"+shaderCode+"\n InfoLog: "
                     +glGetShaderInfoLog(shaderObjectId));
         }
         if(compileStatus[0] == 0){
@@ -70,6 +69,7 @@ public class ShaderHelper {
             }
             return 0;
         }
+        Log.v(TAG, "ProgramObjectID: "+programObjectId);
         glAttachShader(programObjectId, vertexShaderId);
         glAttachShader(programObjectId, fragmentShaderId);
 
@@ -78,7 +78,7 @@ public class ShaderHelper {
         glGetProgramiv(programObjectId, GL_LINK_STATUS, linkStatus, 0);
 
         if(LoggerConfig.ON){
-            Log.v(TAG, "Results of linking program:\n"+glGetProgramInfoLog(programObjectId));
+          //  Log.v(TAG, "Results of linking program: "+glGetProgramInfoLog(programObjectId));
         }
         if(linkStatus[0] == 0){
             glDeleteProgram(programObjectId);
@@ -96,7 +96,7 @@ public class ShaderHelper {
 
         final int[] validateStatus = new int[1];
         glGetProgramiv(programObjectId, GL_VALIDATE_STATUS, validateStatus, 0);
-        Log.v(TAG, "Results of validating program: "+validateStatus[0]+"\n Log: "+glGetProgramInfoLog(programObjectId));
+        //Log.v(TAG, "Results of validating program: "+validateStatus[0]+"\n Log: "+glGetProgramInfoLog(programObjectId));
         return validateStatus[0] != 0;
     }
 }
