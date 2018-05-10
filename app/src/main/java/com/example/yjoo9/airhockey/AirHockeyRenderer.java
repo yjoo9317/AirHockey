@@ -39,7 +39,7 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
     private static final int COLOR_COMPONENT_COUNT = 3;
     //private static final String U_COLOR = "u_Color";
     private static final String A_POSITION = "a_Position";
-    private static final int POSITION_COMPONENT_COUNT= 2;
+    private static final int POSITION_COMPONENT_COUNT= 4; //x, y, z, w
     private static final int BYTES_PER_FLOAT = 4;
     private static final int STRIDE = (POSITION_COMPONENT_COUNT+COLOR_COMPONENT_COUNT)*BYTES_PER_FLOAT;
 
@@ -58,19 +58,20 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
     public AirHockeyRenderer(Context context){
         this.mContext = context;
         float[] tableVerticesWithTriangles = {
-           //   X,  Y,  R,  G,  B   adding color to each vertex
-                   0f,    0f,   1f,   1f,   1f,
-                -0.5f, -0.8f, 0.7f, 0.7f, 0.7f,
-                 0.5f, -0.8f, 0.7f, 0.7f, 0.7f,
-                 0.5f,  0.8f, 0.7f, 0.7f, 0.7f,
-                -0.5f,  0.8f, 0.7f, 0.7f, 0.7f,
-                -0.5f, -0.8f, 0.7f, 0.7f, 0.7f,
+           //       X,    Y,     Z,    W      R,    G,    B   adding color to each vertex
+                // Triangle Fan
+                   0f,    0f,   0f,  1.5f,   1f,   1f,   1f,
+                -0.5f, -0.8f,   0f,    1f, 0.7f, 0.7f, 0.7f,
+                 0.5f, -0.8f,   0f,    1f, 0.7f, 0.7f, 0.7f,
+                 0.5f,  0.8f,   0f,    2f, 0.7f, 0.7f, 0.7f,
+                -0.5f,  0.8f,   0f,    2f, 0.7f, 0.7f, 0.7f,
+                -0.5f, -0.8f,   0f,    1f, 0.7f, 0.7f, 0.7f,
 
-                -0.5f, 0f, 1f, 0f, 0f,
-                 0.5f, 0f, 1f, 0f, 0f,
-
-                   0f, -0.4f, 0f, 0f, 1f,
-                   0f,  0.4f, 1f, 0f, 0f
+                -0.5f, 0f, 0f, 1.5f, 1f, 0f, 0f,
+                 0.5f, 0f, 0f, 1.5f, 1f, 0f, 0f,
+              //  mallet
+                   0f, -0.4f, 0f, 1.25f, 0f, 0f, 1f,
+                   0f,  0.4f, 0f, 1.75f, 1f, 0f, 0f
         };
         /*float[] tableVerticesWithTriangles = {
                 0f, 0f,
