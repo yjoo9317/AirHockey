@@ -4,6 +4,7 @@ import android.content.Context;
 import android.opengl.GLSurfaceView;
 
 import com.example.yjoo9.airhockey.android.util.LoggerConfig;
+import com.example.yjoo9.airhockey.android.util.MatrixHelper;
 import com.example.yjoo9.airhockey.android.util.ShaderHelper;
 import com.example.yjoo9.firstopengl.R;
 
@@ -15,6 +16,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import static android.opengl.GLES20.glUniformMatrix4fv;
+import static android.opengl.Matrix.multiplyMM;
 import static android.opengl.Matrix.orthoM;
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
 import static android.opengl.GLES20.GL_FLOAT;
@@ -32,6 +34,9 @@ import static android.opengl.GLES20.glUniform4f;
 import static android.opengl.GLES20.glUseProgram;
 import static android.opengl.GLES20.glVertexAttribPointer;
 import static android.opengl.GLES20.glViewport;
+import static android.opengl.Matrix.rotateM;
+import static android.opengl.Matrix.setIdentityM;
+import static android.opengl.Matrix.translateM;
 
 public class AirHockeyRenderer implements GLSurfaceView.Renderer {
     private static final String U_MATRIX = "u_Matrix";
@@ -48,6 +53,7 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
     private final float[] mProjectionMatrix = new float[16];
     private final float Magnify = 1.5f;
     private final float Compress = 0.7f;
+    private final float[] mModelMatrix = new float[16];
 
     private int mProgram;
     private int mUColorLocation;
@@ -60,18 +66,18 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
         float[] tableVerticesWithTriangles = {
            //       X,    Y,     Z,    W      R,    G,    B   adding color to each vertex
                 // Triangle Fan
-                   0f,    0f,   0f,  1.5f,   1f,   1f,   1f,
+                   0f,    0f,   0f,    1f,   1f,   1f,   1f,
                 -0.5f, -0.8f,   0f,    1f, 0.7f, 0.7f, 0.7f,
                  0.5f, -0.8f,   0f,    1f, 0.7f, 0.7f, 0.7f,
-                 0.5f,  0.8f,   0f,    2f, 0.7f, 0.7f, 0.7f,
-                -0.5f,  0.8f,   0f,    2f, 0.7f, 0.7f, 0.7f,
+                 0.5f,  0.8f,   0f,    1f, 0.7f, 0.7f, 0.7f,
+                -0.5f,  0.8f,   0f,    1f, 0.7f, 0.7f, 0.7f,
                 -0.5f, -0.8f,   0f,    1f, 0.7f, 0.7f, 0.7f,
 
                 -0.5f, 0f, 0f, 1.5f, 1f, 0f, 0f,
                  0.5f, 0f, 0f, 1.5f, 1f, 0f, 0f,
               //  mallet
                    0f, -0.4f, 0f, 1.25f, 0f, 0f, 1f,
-                   0f,  0.4f, 0f, 1.75f, 1f, 0f, 0f
+                   0f,  0.4f, 0f, 1.25f, 1f, 0f, 0f
         };
         /*float[] tableVerticesWithTriangles = {
                 0f, 0f,
@@ -128,14 +134,22 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         glViewport(0, 0, width, height);
 
-        final float aspectRatio = width > height ?
-                (float) width / (float) height :
-                (float) height / (float) width;
-        if(width > height){ // landscape
-            orthoM(mProjectionMatrix, 0, -aspectRatio, aspectRatio, -1f, 1f, -1f, 1f);
-        } else { // Portrait
-            orthoM(mProjectionMatrix, 0, -1f , 1f, -aspectRatio, aspectRatio, -1f, 1f);
-        }
+        // create a perspective projection with a field of vision of 45 degrees
+        // frustum will begin af z of -1f and will end at a z of -10f
+        MatrixHelper.perspectiveM(mProjectionMatrix, 45, (float)width / (float)height, 1f, 10f);
+
+        // set ModelMatrix to identity matrix and translate by -2f along  z axis
+        setIdentityM(mModelMatrix, 0);
+        translateM(mModelMatrix, 0, 0f, 0f, -2.5f);
+        rotateM(mModelMatrix, 0, -60f, 1f, 0f, 0f);
+
+        // matrix multiplication order
+        // vertex_clip = ProjectionMatrix * ModelMatrix * vertex_model
+        // multiply matrices and save at temp
+        // then copy the content temp back to mProjectionMatrix
+        final float[] temp = new float[16];
+        multiplyMM(temp, 0, mProjectionMatrix, 0, mModelMatrix, 0);
+        System.arraycopy(temp, 0, mProjectionMatrix, 0, temp.length);
     }
 
     @Override
